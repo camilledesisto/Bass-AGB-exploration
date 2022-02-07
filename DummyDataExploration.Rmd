@@ -59,7 +59,6 @@ summary(dummy_plots_trees)
 
 Height models 
 ```{r}
-
  hplots <- unique(dummy_plots_trees$Project_Plot)
   output <- list()
 
@@ -93,7 +92,6 @@ dummy_plots_trees2$H <- hts
 
 ```
 
-
 Structure (Abundance and Size Classes)
 ```{r}
 plot_abundance <- dummy_plots_trees %>%
@@ -102,7 +100,6 @@ plot_abundance <- dummy_plots_trees %>%
                    mean_dbh = mean(dbh))
 
 ```
-
 
 AGB Analysis
 ```{r}
@@ -139,5 +136,10 @@ hill_dat4_list <- as.list(hill_dat4)
 
 hill <- iNEXT(hill_dat4_list, q = c(0,1,2), datatype = "abundance")
 hill
+```
+
+Spatial Variables 
+```{r}
+
 ```
 
