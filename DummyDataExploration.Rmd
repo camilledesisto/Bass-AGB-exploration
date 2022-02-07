@@ -140,6 +140,14 @@ hill
 
 Spatial Variables 
 ```{r}
+bioclim_data
+
+bioclim.pca <- princomp(bioclim_data[,-c(1:2,22:40)])
+
+# print shows you the eigenvalues;
+print(bioclim.pca)
+# summary does the same but adds the raw and cumulative variance:
+summary(bioclim.pca) 
 
 ```
 
