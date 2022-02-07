@@ -99,9 +99,7 @@ Structure (Abundance and Size Classes)
 plot_abundance <- dummy_plots_trees %>%
   group_by(Project_Plot)%>%
   dplyr::summarise(abundance = n(),
-                   mean_dbh = mean(dbh),
-                   mean_height= mean(height))
-
+                   mean_dbh = mean(dbh))
 
 ```
 
