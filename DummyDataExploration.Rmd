@@ -19,7 +19,7 @@ pacman::p_load(ggplot2, knitr, BIOMASS, dplyr, data.table, gdata,
 
 #load data
 dummy_plots <- read.csv("bass_dummy_data.csv")
-bioclim_data <- 
+bioclim_data <- read.csv("worldclim_bass.csv")
 
 ```
 
@@ -37,13 +37,70 @@ names(dummy_plots_trees)[4]<- "dbh"
 names(dummy_plots_trees)[5]<- "height"
 
 #create liana data
-
+dummy_plots_liana <- dummy_plots %>%
+  filter(Type_Field == "Liana")%>%
+  select(Project, Plot, Grid, TAG_SUM, DBH..mm., Height..meters.)%>%
+  mutate(Project2 = Project)%>%
+  unite("Project_Plot", Project:Plot)
+names(dummy_plots_liana)[4]<- "dbh"
+names(dummy_plots_liana)[5]<- "height"
 
 #visually explore data
+
+ggplot(data = dummy_plots_trees, aes(x=dbh))+
+  geom_histogram()
+
+ggplot(data = dummy_plots_trees, aes(x=height))+
+  geom_histogram()
+
+summary(dummy_plots_trees)
+
 ```
+
+Height models 
+```{r}
+
+ hplots <- unique(dummy_plots_trees$Project_Plot)
+  output <- list()
+
+Hcalc <- function(ddat, hdat, x){
+  
+   print(x)
+      
+      hmod <- data.frame(modelHD(D = hdat$dbh, H = hdat$height, useWeight = F, method = NULL))
+       min_pick <- min(hmod$RSE, na.rm = T)
+        bm <- hmod$method[hmod$RSE == min_pick]
+         best_mod <- modelHD(D = hdat$DBH, H = hdat$mHt, useWeight = F, method = bm) 
+          predHt <- retrieveH(D = ddat$D, model = best_mod)
+
+       list(rsq = best_mod$R.squared, rse = best_mod$RSE, mod = best_mod$method, 
+                           H = predHt$H, dat = ddat)
+}
+
+all_hts <- lapply(1:length(unique(dummy_plots_trees$Project_Plot)), function(x) output[[x]] = Hcalc(ddat = 
+                                                    dummy_plots_trees[dummy_plots_trees$Project_Plot == hplots[[x]], ], 
+                                                    hdat = dummy_plots_trees[dummy_plots_trees$Project_Plot == hplots[[x]],], 
+                                                    x))
+ 
+rsq <- unlist(lapply(all_hts, `[[`, "rsq"))
+rse <- unlist(lapply(all_hts, `[[`, "rse"))
+mod <- unlist(lapply(all_hts, `[[`, "mod"))
+hts <- unlist(lapply(all_hts, `[[`, "H"))
+data <- unlist(lapply(all_hts, `[[`, "dat"))
+
+dummy_plots_trees2 <- data.frame(do.call("rbind", (lapply(all_hts, `[[`, "dat"))))
+dummy_plots_trees2$H <- hts
+
+```
+
 
 Structure (Abundance and Size Classes)
 ```{r}
+plot_abundance <- dummy_plots_trees %>%
+  group_by(Project_Plot)%>%
+  dplyr::summarise(abundance = n(),
+                   mean_dbh = mean(dbh),
+                   mean_height= mean(height))
 
 
 ```
